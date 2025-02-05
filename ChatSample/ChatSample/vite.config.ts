@@ -6,7 +6,7 @@ export default defineConfig({
     outDir: "wwwroot",
   },
   server: {
-    port: 5000,
+    port: 3000,
     cors: true,
   },
 });

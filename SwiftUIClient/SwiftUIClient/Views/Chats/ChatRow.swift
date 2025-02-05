@@ -10,17 +10,21 @@ import SwiftUI
 struct ChatRow: View {
     let message: Message
     var body: some View {
-        Text(message.body)
-            .frame(
-                maxWidth: .infinity,
-                alignment: .leading
-            )
-            .padding(.all, 10)
-            .cornerRadius(5)
-            .overlay(
-                RoundedRectangle(cornerRadius: 5)
-                    .stroke(.gray)
-            )
+        HStack {
+            Text(message.sender)
+            Text(":")
+            Text(message.content)
+        }
+        .frame(
+            maxWidth: .infinity,
+            alignment: .leading
+        )
+        .padding(.all, 10)
+        .cornerRadius(5)
+        .overlay(
+            RoundedRectangle(cornerRadius: 5)
+                .stroke(.gray)
+        )
     }
 }
 

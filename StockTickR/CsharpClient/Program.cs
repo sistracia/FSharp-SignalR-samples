@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.SignalR.Client;
+﻿using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 var connection = new HubConnectionBuilder()
-                .WithUrl("http://localhost:5000/stocks")
-                .ConfigureLogging(logging =>
-                {
-                    logging.AddConsole();
-                })
-                .AddMessagePackProtocol()
-                .Build();
+    .WithUrl("http://localhost:5050/stocks")
+    .ConfigureLogging(logging => { logging.AddConsole(); })
+    .AddMessagePackProtocol()
+    .Build();
 
 await connection.StartAsync();
 
@@ -35,46 +28,21 @@ connection.Closed += e =>
 };
 
 
-connection.On("marketOpened", () =>
-{
-    Console.WriteLine("Market opened");
-});
+connection.On("marketOpened", () => { Console.WriteLine("Market opened"); });
 
-connection.On("marketClosed", () =>
-{
-    Console.WriteLine("Market closed");
-});
+connection.On("marketClosed", () => { Console.WriteLine("Market closed"); });
 
 connection.On("marketReset", () =>
 {
     // We don't care if the market rest
 });
 
-var channel = await connection.StreamAsChannelAsync<Stock>("StreamStocks", CancellationToken.None);
+var channel = await connection.StreamAsChannelAsync<Dictionary<string, object>>("StreamStocks", CancellationToken.None);
 while (await channel.WaitToReadAsync() && !cts.IsCancellationRequested)
 {
     while (channel.TryRead(out var stock))
     {
-        Console.WriteLine($"{stock.Symbol} {stock.Price}");
+        Console.WriteLine(string.Join(", ", stock.Select(pair => $"{pair.Key}: {pair.Value}")));
     }
-}
-
-class Stock
-{
-    public string Symbol { get; set; }
-
-    public decimal DayOpen { get; private set; }
-
-    public decimal DayLow { get; private set; }
-
-    public decimal DayHigh { get; private set; }
-
-    public decimal LastChange { get; private set; }
-
-    public decimal Change { get; set; }
-
-    public double PercentChange { get; set; }
-
-    public decimal Price { get; set; }
 }
 

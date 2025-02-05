@@ -2,7 +2,7 @@ import * as signalR from "@microsoft/signalr";
 
 export function setupApp() {
   const connection = new signalR.HubConnectionBuilder()
-    .withUrl("http://localhost:5001/draw")
+    .withUrl("http://localhost:5050/draw")
     .build();
 
   const canvas = document.getElementById("canvas") as HTMLCanvasElement;

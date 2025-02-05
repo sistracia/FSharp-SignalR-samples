@@ -48,7 +48,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val hubConnection = HubConnectionBuilder.create("YOUR HUB URL").build()
+        val hubConnection = HubConnectionBuilder.create("http://10.0.2.2:5050/chat").build()
 
         setContent {
             AndroidKotlinClientTheme {
@@ -60,9 +60,9 @@ class MainActivity : ComponentActivity() {
                 // Connect to the hub when the composable is first composed
                 LaunchedEffect(Unit) {
                     startSignalRConnection(hubConnection)
-                    hubConnection.on("Send", { message ->
-                        messages += Message(message)
-                    }, String::class.java)
+                    hubConnection.on("broadcastMessage", { sender, message ->
+                        messages += Message(sender, message)
+                    }, String::class.java, String::class.java)
                 }
 
 
@@ -72,7 +72,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     ChatList(messages = messages, onSendMessage = { message ->
                         try {
-                            hubConnection.send("Send", message)
+                            hubConnection.send("send", "Kotlin", message)
                         } catch (e: Exception) {
                             e.printStackTrace()
                         }
@@ -85,9 +85,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Chat(message: Message, modifier: Modifier = Modifier) {
-    Text(
-        text = message.body,
-        maxLines = Int.MAX_VALUE,
+    Row(
         modifier = modifier
             .fillMaxWidth()
             .padding(all = 2.dp)
@@ -97,7 +95,18 @@ fun Chat(message: Message, modifier: Modifier = Modifier) {
             .padding(
                 vertical = 2.dp, horizontal = 4.dp
             )
-    )
+    ) {
+        Text(
+            text = message.sender,
+        )
+        Text(
+            text = " : ",
+        )
+        Text(
+            text = message.content,
+            maxLines = Int.MAX_VALUE,
+        )
+    }
 }
 
 @Composable
@@ -109,9 +118,7 @@ fun ChatList(
             modifier = Modifier
                 .weight(1f)
                 .padding(
-                    top = WindowInsets.ime
-                        .asPaddingValues()
-                        .calculateBottomPadding()
+                    top = WindowInsets.ime.asPaddingValues().calculateBottomPadding()
                 )
         ) {
             items(messages) { message ->
@@ -154,10 +161,10 @@ fun ChatListPreview() {
 
 object SampleData {
     // Sample conversation data
-    val messagesSample = List(1000) { Message("Message") }
+    val messagesSample = List(1000) { Message("Sender", "Content") }
 }
 
-data class Message(val body: String)
+data class Message(val sender: String, val content: String)
 
 // Thanks to ChatGPT!
 private suspend fun startSignalRConnection(hubConnection: HubConnection) {
@@ -165,6 +172,7 @@ private suspend fun startSignalRConnection(hubConnection: HubConnection) {
         try {
             hubConnection.start().blockingAwait()
             // Connection established
+            Log.println(Log.DEBUG, "startSignalRConnection.established", "success")
         } catch (e: Exception) {
             // Handle connection error
             Log.println(Log.DEBUG, "startSignalRConnection.catch", e.message.toString())

@@ -21,7 +21,7 @@ let main args =
             "CorsPolicy",
             fun builder ->
                 builder
-                    .WithOrigins("http://localhost:5000")
+                    .WithOrigins("http://localhost:3000")
                     .AllowAnyHeader()
                     .WithMethods("GET", "POST")
                     .AllowCredentials()
@@ -32,7 +32,6 @@ let main args =
     let app = builder.Build()
 
     app.UseCors("CorsPolicy") |> ignore
-    app.UseFileServer() |> ignore
     app.UseRouting() |> ignore
 
     app.UseEndpoints(fun endpoints -> endpoints.MapHub<DrawHub>("/draw") |> ignore)

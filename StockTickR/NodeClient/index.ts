@@ -1,7 +1,7 @@
 import * as signalR from "@microsoft/signalr";
 
 const hubConnection = new signalR.HubConnectionBuilder()
-  .withUrl("http://127.0.0.1:5000/stocks")
+  .withUrl("http://127.0.0.1:5050/stocks")
   .build();
 
 hubConnection.start().then(() => {

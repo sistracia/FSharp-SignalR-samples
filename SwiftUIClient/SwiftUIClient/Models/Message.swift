@@ -9,15 +9,17 @@ import Foundation
 
 struct Message: Identifiable {
     var id: UUID
-    var body: String
+    var sender: String
+    var content: String
     
-    init(id: UUID = UUID(), body: String) {
+    init(id: UUID = UUID(), sender: String, content: String) {
         self.id = id
-        self.body = body
+        self.sender = sender
+        self.content = content
     }
 }
 
 
 extension Message {
-    static let sampleMessages: [Message] = Array(repeating: Message(body: "Message"), count: 1000)
+    static let sampleMessages: [Message] = Array(repeating: Message(sender: "Sender", content: "Content"), count: 1000)
 }
